@@ -24,7 +24,7 @@ def all_course_urls
     puts "[INFO] Scraped #{course_urls.size} courses in #{category} category"
   end
 
-  urls
+  urls.uniq
 end
 
 def extract_course_entry_requirements(response)
