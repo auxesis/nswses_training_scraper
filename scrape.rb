@@ -36,6 +36,21 @@ def extract_course_entry_requirements(response)
   end
 end
 
+def extract_course_workshops_from_tables(containers, zone, course_id)
+  containers.search("table tr").each_with_index.map do |row, i|
+    next if i == 0 # skip table header, no tbody :-(
+    workshop = {
+      name: row.search("td.instance_name").text,
+      date: row.search("td.instance_date").text,
+      time: row.search("td.instance_time").text,
+      location: row.search("td.instance_location").text,
+      vacancy: row.search("td.instance_vacancy").text,
+      zone: zone,
+      course_id: course_id,
+    }
+  end
+end
+
 def extract_course_workshops(response)
   zones = response.search(".elementor-tabs .elementor-tabs-wrapper .elementor-tab-title").map(&:text)
   zone_workshop_containers = response.search(".elementor-tabs .elementor-tab-content")
@@ -45,23 +60,27 @@ def extract_course_workshops(response)
     exit(2)
   end
 
+  course_id = Addressable::URI.parse(response.uri).query_values["course_id"].to_i
+  all_workshops_count = 0
   workshops = []
   zone_workshop_containers.each_with_index do |containers, index|
-    next if zones[index] == "All Locations" # skip the All Locations view, because we can't work out the zone
-    next unless containers.search("table tr").any? # no workshops in the current zone
-    containers.search("table tr").each_with_index do |row, i|
-      next if i == 0 # skip table header, no tbody :-(
-      workshop = {
-        name: row.search("td.instance_name").text,
-        date: row.search("td.instance_date").text,
-        time: row.search("td.instance_time").text,
-        location: row.search("td.instance_location").text,
-        vacancy: row.search("td.instance_vacancy").text,
-        zone: zones[index],
-        course_id: Addressable::URI.parse(response.uri).query_values["course_id"].to_i,
-      }
-      workshops << workshop
+    if zones[index] == "All Locations" # skip the All Locations view, because we can't work out the zone
+      if containers.search("table tr").any?
+        all_workshops_count = containers.search("table tr").size - 1
+      end
+      next
     end
+    next unless containers.search("table tr").any? # no workshops in the current zone
+    workshops += extract_course_workshops_from_tables(containers, zones[index], course_id).compact
+  end
+
+  if all_workshops_count != workshops.size
+    puts "[INFO] All workshops count (#{all_workshops_count}) different to zone total (#{workshops.size}) for course #{course_id}"
+    all_locations_container_index = zones.index("All Locations")
+    containers = zone_workshop_containers[all_locations_container_index]
+    all_locations_workshops = extract_course_workshops_from_tables(containers, "All Locations", course_id).compact
+    workshops_without_zones = all_locations_workshops.map { |w| w.except(:zone) } - workshops.map { |w| w.except(:zone) }
+    workshops += workshops_without_zones
   end
   workshops
 end
