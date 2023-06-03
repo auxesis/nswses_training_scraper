@@ -40,6 +40,7 @@ def extract_course_workshops_from_tables(containers, zone, course_id)
   containers.search("table tr").each_with_index.map do |row, i|
     next if i == 0 # skip table header, no tbody :-(
     workshop = {
+      id: Addressable::URI.parse(row.search(".ax-course-button a").first.attribute("href").value).query_values["instance_id"].to_i,
       name: row.search("td.instance_name").text,
       date: row.search("td.instance_date").text,
       time: row.search("td.instance_time").text,
@@ -117,7 +118,7 @@ def main
   workshops = courses.map { |c| c[:workshops] }.flatten
 
   ScraperWiki.save_sqlite(%i[id], normalised_courses, "courses")
-  ScraperWiki.save_sqlite(%i[course_id location date], workshops, "workshops")
+  ScraperWiki.save_sqlite(%i[id], workshops, "workshops")
 end
 
 main() if $PROGRAM_NAME == $0
