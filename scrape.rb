@@ -8,23 +8,23 @@ def agent
 end
 
 def all_course_urls
-  urls = []
+  return @urls if @urls
+  @urls = []
 
   field_operations_categories = %w[foundation-level technical-level leadership-field]
   incident_management_categories = %w[foundation-imt technical-imt leadership-imt]
   categories = field_operations_categories + incident_management_categories
 
-  base_url = "https://nswses.axcelerate.com.au"
-
   categories.each do |category|
     category_url = "#{base_url}/#{category}/"
     response = agent.get(category_url)
     course_urls = response.search("div.ax-course-list div.ax-course-list-record a.ax-course-detail-link").map { |a| base_url + a.attribute("href").value }
-    urls += course_urls
+    @urls += course_urls
     puts "[INFO] Scraped #{course_urls.size} courses in #{category} category"
   end
 
-  urls.uniq
+  @urls.uniq!
+  @urls
 end
 
 def extract_course_entry_requirements(response)
