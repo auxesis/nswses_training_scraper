@@ -4,6 +4,7 @@ gem 'scraperwiki', git: 'https://github.com/openaustralia/scraperwiki-ruby.git',
 gem 'mechanize'
 gem 'addressable'
 gem 'reverse_markdown'
+gem 'activesupport'
 
 group :development do
   gem 'pry'

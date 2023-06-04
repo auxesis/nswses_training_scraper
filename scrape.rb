@@ -2,6 +2,7 @@ require "scraperwiki"
 require "mechanize"
 require "addressable"
 require "reverse_markdown"
+require "active_support/core_ext/hash"
 
 def agent
   @agent ||= Mechanize.new
@@ -134,6 +135,50 @@ rescue => e
   binding.pry
 end
 
+def scrape_workshop_dates(zones)
+  workshop_dates = []
+  zones.each do |zone|
+    zone_courses_url = "#{base_url}/#{zone[:id]}/"
+    response = agent.get(zone_courses_url)
+    puts "[INFO] Scraping precise workshop dates for: #{zone[:name]}"
+
+    container = response.search("div.ax-course-instance-list.ax-table").first # first should be All <zone> Courses
+    container.search("tr").each_with_index.map do |row, i|
+      next if i == 0 # skip table header, no tbody :-(
+      workshop_query_parameters = Addressable::URI.parse(row.search(".ax-course-button a").first.attribute("href").value).query_values
+      instance_id = workshop_query_parameters["instance_id"].to_i
+      course_id = workshop_query_parameters["course_id"].to_i
+      start_date = row.search("td.instance_start").text.strip
+      start_date = start_date.empty? ? nil : Date.parse(start_date)
+      finish_date = row.search("td.instance_finish").text.strip
+      finish_date = finish_date.empty? ? nil : Date.parse(finish_date)
+      workshop = {
+        id: instance_id,
+        start_date: start_date,
+        finish_date: finish_date,
+        zone: zone[:id],
+        course_id: course_id,
+      }
+      workshop_dates << workshop
+    end
+  end
+  workshop_dates
+end
+
+def enrich_workshop_dates(workshops, workshop_dates)
+  enriched_workshops = []
+  workshops.map!(&:symbolize_keys!) # FIXME:remove once no longer developing
+  workshops.each do |workshop|
+    precise_date = workshop_dates.find { |d| d[:id] == workshop[:id] }
+    if not precise_date
+      puts "[INFO] No precise date for workshop #{workshop[:id]} (#{workshop[:name]})"
+      next
+    end
+    enriched_workshops << workshop.merge(precise_date)
+  end
+  enriched_workshops
+end
+
 def main
   zones = all_zones
   puts "[INFO] Scraped #{zones.size} zones"
@@ -147,11 +192,17 @@ def main
     scrape_course(course_url)
   end
 
+  workshop_dates = scrape_workshop_dates(zones)
+
   normalised_courses = courses.map { |c| c.except(:workshops) }
   workshops = courses.map { |c| c[:workshops] }.flatten
+  workshops = enrich_workshop_dates(workshops, workshop_dates)
 
   ScraperWiki.save_sqlite(%i[id], normalised_courses, "courses")
   ScraperWiki.save_sqlite(%i[id], workshops, "workshops")
+
+  puts "[INFO] Courses saved: #{normalised_courses.size}"
+  puts "[INFO] Workshops saved: #{workshops.size}"
 end
 
 main() if $PROGRAM_NAME == $0
