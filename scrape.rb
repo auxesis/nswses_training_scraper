@@ -73,7 +73,7 @@ def extract_course_workshops_from_tables(containers, zone, course_id)
       date_freetext: row.search("td.instance_date").text,
       time_freetext: row.search("td.instance_time").text,
       location: row.search("td.instance_location").text,
-      vacancy: row.search("td.instance_vacancy").text,
+      vacancy: row.search("td.instance_vacancy").text.to_i,
       zone: zone,
       course_id: course_id,
     }
