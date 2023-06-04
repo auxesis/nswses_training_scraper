@@ -7,6 +7,34 @@ def agent
   @agent ||= Mechanize.new
 end
 
+def base_url
+  "https://nswses.axcelerate.com.au"
+end
+
+def all_zones
+  return @zones if @zones
+  @zones = []
+
+  course_zones_url = "#{base_url}/course-by-zones/"
+  response = agent.get(course_zones_url)
+
+  zone_buttons = response.search("div.elementor-widget-wrap a.elementor-button-link")
+  if zone_buttons.empty?
+    puts "[ERROR] No zone buttons. Courses by Zone page format has changed?"
+    exit(2)
+  end
+
+  zone_buttons.each do |button|
+    @zones << {
+      id: button.attribute("href").value[1..-2],
+      name: button.text.strip,
+    }
+  end
+
+  @zones.uniq!
+  @zones
+end
+
 def all_course_urls
   return @urls if @urls
   @urls = []
@@ -107,7 +135,12 @@ rescue => e
 end
 
 def main
+  zones = all_zones
+  puts "[INFO] Scraped #{zones.size} zones"
+  ScraperWiki.save_sqlite(%i[id], zones, "zones")
+
   urls = all_course_urls
+  puts "[INFO] Scraping #{urls.size} courses"
 
   courses = urls.map do |course_url|
     puts "[INFO] Scraping #{course_url}"
