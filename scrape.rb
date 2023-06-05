@@ -131,8 +131,6 @@ def scrape_course(course_url)
     workshops: extract_course_workshops(response),
     scraped_at: Time.now,
   }
-rescue => e
-  binding.pry
 end
 
 def scrape_workshop_dates(zones)
