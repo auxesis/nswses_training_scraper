@@ -179,11 +179,12 @@ def enrich_workshop_dates(workshops, workshop_dates)
   workshops.map!(&:symbolize_keys!) # FIXME:remove once no longer developing
   workshops.each do |workshop|
     precise_date = workshop_dates.find { |d| d[:id] == workshop[:id] }
-    if not precise_date
+    if precise_date
+      enriched_workshops << workshop.merge(precise_date)
+    else
       puts "[INFO] No precise date for workshop #{workshop[:id]} (#{workshop[:name]})"
-      next
+      enriched_workshops << workshop
     end
-    enriched_workshops << workshop.merge(precise_date)
   end
   enriched_workshops
 end
