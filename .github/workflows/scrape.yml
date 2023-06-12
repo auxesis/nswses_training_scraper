@@ -19,21 +19,21 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-    
+
     - uses: actions/checkout@v3
-    
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.2
         bundler-cache: true
-        
+
     - name: Run scraper
       run: bundle exec ruby scrape.rb
-      
+
     - name: Upload scraper database
       uses: actions/upload-artifact@v3
       with:
         name: data.sqlite
         path: data.sqlite
-        if-no-files-found: error 
+        if-no-files-found: error
