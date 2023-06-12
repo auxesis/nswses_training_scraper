@@ -121,6 +121,8 @@ def extract_course_workshops(response)
     workshops_without_zones = all_locations_workshops.map { |w| w.except(:zone) } - workshops.map { |w| w.except(:zone) }
     workshops += workshops_without_zones
   end
+  # Record that we've seen a workshop today.
+  workshops.each { |workshop| workshop[:last_seen_at] = Time.now }
   workshops
 end
 
