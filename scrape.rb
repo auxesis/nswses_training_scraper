@@ -107,6 +107,12 @@ def extract_course_workshops(response)
     workshops += extract_course_workshops_from_tables(containers, zones[index], course_id).compact
   end
 
+  # Sometimes workshops are added to Axcelerate, but aren't assigned a zone.
+  #
+  # This means there are potentially workshops running in a zone that aren't discoverable in that zone view.
+  #
+  # This checks if the count of all workshops is different from the sum of all workshops across all
+  # individual zones. If there is a difference, pluck the zoneless workshops.
   if all_workshops_count != workshops.size
     puts "[INFO] All workshops count (#{all_workshops_count}) different to zone total (#{workshops.size}) for course #{course_id}"
     all_locations_container_index = zones.index("All Locations")
