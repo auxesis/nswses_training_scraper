@@ -127,6 +127,7 @@ def extract_course_workshops(response)
 end
 
 def scrape_course(course_url)
+  puts "[INFO] Scraping #{course_url}"
   response = agent.get(course_url)
   {
     url: course_url,
@@ -231,7 +232,6 @@ def main
   puts "[INFO] Scraping #{urls.size} courses"
 
   scraped_courses = urls.map do |course_url|
-    puts "[INFO] Scraping #{course_url}"
     scrape_course(course_url)
   end
 
