@@ -194,10 +194,14 @@ end
 
 def existing_course_ids
   ScraperWiki.select("id FROM courses").map { |c| c["id"] }
+rescue SqliteMagic::NoSuchTable
+  []
 end
 
 def existing_workshop_ids
   ScraperWiki.select("id FROM workshops").map { |c| c["id"] }
+rescue SqliteMagic::NoSuchTable
+  []
 end
 
 def enrich_course_first_seen_at(courses)
