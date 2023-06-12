@@ -1,4 +1,4 @@
-name: ⛏️ Run scraper
+name: Run scraper
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   scrape:
-    name: Scrape
+    name: ⛏️ Scrape
     runs-on: ubuntu-latest
     steps:
 
