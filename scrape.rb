@@ -5,7 +5,10 @@ require "reverse_markdown"
 require "active_support/core_ext/hash"
 
 def agent
-  @agent ||= Mechanize.new
+  return @agent if @agent
+  @agent = Mechanize.new
+  @agent.user_agent = "nswses_training_scraper (#{RUBY_PLATFORM}) https://github.com/auxesis/nswses_training_scraper"
+  @agent
 end
 
 def base_url
