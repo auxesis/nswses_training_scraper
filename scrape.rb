@@ -4,6 +4,8 @@ require "addressable"
 require "reverse_markdown"
 require "active_support/core_ext/hash"
 
+STDOUT.sync = true
+
 def agent
   return @agent if @agent
   @agent = Mechanize.new
