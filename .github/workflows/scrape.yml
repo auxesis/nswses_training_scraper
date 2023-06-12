@@ -15,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  name: Scrape
   scrape:
+    name: Scrape
     runs-on: ubuntu-latest
     steps:
 
