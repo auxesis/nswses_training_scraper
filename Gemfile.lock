@@ -51,6 +51,8 @@ GEM
       connection_pool (~> 2.2)
     nokogiri (1.15.2-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.15.2-x86_64-linux)
+      racc (~> 1.4)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -66,6 +68,7 @@ GEM
       nokogiri
     rubyntlm (0.6.3)
     sqlite3 (1.6.3-arm64-darwin)
+    sqlite3 (1.6.3-x86_64-linux)
     sqlite_magic (0.0.6)
       sqlite3
     tzinfo (2.0.6)
@@ -79,6 +82,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   activesupport
