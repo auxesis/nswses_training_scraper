@@ -140,7 +140,7 @@ def scrape_course(course_url)
     learning_methods: ReverseMarkdown.convert(response.search(".ax-cd-learning-methods .ax-course-introduction").first.to_html),
     course_entry_requirements: extract_course_entry_requirements(response),
     workshops: extract_course_workshops(response),
-    scraped_at: Time.now,
+    last_seen_at: Time.now,
   }
 end
 
