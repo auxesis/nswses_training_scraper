@@ -189,6 +189,39 @@ def enrich_workshop_dates(workshops, workshop_dates)
   enriched_workshops
 end
 
+def existing_course_ids
+  ScraperWiki.select("id FROM courses").map { |c| c["id"] }
+end
+
+def existing_workshop_ids
+  ScraperWiki.select("id FROM workshops").map { |c| c["id"] }
+end
+
+def enrich_course_first_seen_at(courses)
+  enriched_courses = []
+  courses.each do |course|
+    if existing_course_ids.include?(course[:id])
+      enriched_courses << course
+    else
+      enriched_courses << course.merge(first_seen_at: Time.now)
+    end
+  end
+  enriched_courses
+end
+
+def enrich_workshop_first_seen_at(workshops)
+  enriched_workshops = []
+  workshops.each do |workshop|
+    if existing_workshop_ids.include?(workshop[:id])
+      enriched_workshops << workshop
+    else
+      # if we haven't seen the workshop before, add a first_seen_at timestamp
+      enriched_workshops << workshop.merge(first_seen_at: Time.now)
+    end
+  end
+  enriched_workshops
+end
+
 def main
   zones = all_zones
   puts "[INFO] Scraped #{zones.size} zones"
@@ -197,21 +230,24 @@ def main
   urls = all_course_urls
   puts "[INFO] Scraping #{urls.size} courses"
 
-  courses = urls.map do |course_url|
+  scraped_courses = urls.map do |course_url|
     puts "[INFO] Scraping #{course_url}"
     scrape_course(course_url)
   end
 
   workshop_dates = scrape_workshop_dates(zones)
 
-  normalised_courses = courses.map { |c| c.except(:workshops) }
-  workshops = courses.map { |c| c[:workshops] }.flatten
-  workshops = enrich_workshop_dates(workshops, workshop_dates)
+  courses = scraped_courses.map { |c| c.except(:workshops) }
+  courses = enrich_course_first_seen_at(courses)
 
-  ScraperWiki.save_sqlite(%i[id], normalised_courses, "courses")
+  workshops = scraped_courses.map { |c| c[:workshops] }.flatten
+  workshops = enrich_workshop_dates(workshops, workshop_dates)
+  workshops = enrich_workshop_first_seen_at(workshops)
+
+  ScraperWiki.save_sqlite(%i[id], courses, "courses")
   ScraperWiki.save_sqlite(%i[id], workshops, "workshops")
 
-  puts "[INFO] Courses saved: #{normalised_courses.size}"
+  puts "[INFO] Courses saved: #{courses.size}"
   puts "[INFO] Workshops saved: #{workshops.size}"
 end
 
