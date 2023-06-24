@@ -43,3 +43,4 @@ jobs:
       with:
         files: 'data.sqlite'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-token: scraper
