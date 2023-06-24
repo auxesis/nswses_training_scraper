@@ -46,5 +46,5 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.GH_RELEASE_SECRET }}"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           -H "Content-Type: application/octet-stream" \
-          https://uploads.github.com/repos/auxesis/nswses_training_scraper/releases/108712870/assets?name=data.sqlite \
+          https://uploads.github.com/repos/auxesis/nswses_training_scraper/releases/108712870/assets?name=data-${GITHUB_RUN_ID}.sqlite \
           --data-binary "@data.sqlite"
