@@ -38,10 +38,22 @@ jobs:
             repo: context.repo.repo,
             release_id: 108712870,
           });
-          console.log(release)
+          const sqlites = release.data.assets.filter((release) => /^data-\d+\.sqlite/.test(release.name))
+          const latest = sqlites.sort((a, b) => (a.created_at < b.created_at) ? -1 : ((a.created_at > b.created_at) ? 1 : 0)).at(-1)
+          const asset = await github.rest.repos.getReleaseAsset({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            asset_id: latest.id,
+            headers: { 'Accept': 'application/octet-stream' },
+          });
 
-    - name: Bail for dev
-      run: exit 1
+          const fs = require("fs").promises;
+          fs.writeFile('data.sqlite', Buffer.from(asset.data), err => {
+            if (err) {
+              console.error(err);
+              process.exit(2)
+            }
+          });
 
     - name: Run scraper
       run: bundle exec ruby scrape.rb
