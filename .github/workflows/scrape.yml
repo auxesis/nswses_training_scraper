@@ -47,3 +47,4 @@ jobs:
         upload_url: https://uploads.github.com/repos/auxesis/nswses_training_scraper/releases/scraper/assets
         asset_path: data.sqlite
         asset_name: data.sqlite
+        asset_content_type: application/vnd.sqlite3
