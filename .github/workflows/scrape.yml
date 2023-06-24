@@ -40,6 +40,7 @@ jobs:
           });
           const sqlites = release.data.assets.filter((release) => /^data-\d+\.sqlite/.test(release.name))
           const latest = sqlites.sort((a, b) => (a.created_at < b.created_at) ? -1 : ((a.created_at > b.created_at) ? 1 : 0)).at(-1)
+          console.log("Downloading asset:", latest.name)
           const asset = await github.rest.repos.getReleaseAsset({
             owner: context.repo.owner,
             repo: context.repo.repo,
