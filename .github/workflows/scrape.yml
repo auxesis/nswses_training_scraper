@@ -28,6 +28,21 @@ jobs:
         ruby-version: 3.2
         bundler-cache: true
 
+    - name: Download release asset
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const release = await github.rest.repos.getRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: 108712870,
+          });
+          console.log(release)
+
+    - name: Bail for dev
+      run: exit 1
+
     - name: Run scraper
       run: bundle exec ruby scrape.rb
 
