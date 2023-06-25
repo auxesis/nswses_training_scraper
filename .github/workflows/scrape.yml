@@ -68,6 +68,9 @@ jobs:
 
     - name: Upload scraper database to release
       run: |
+        ASSET_NAME="data-${GITHUB_RUN_ID}.sqlite"
+        echo "Uploading asset: ${ASSET_NAME}"
+
         curl -L \
           -X POST \
           -H "Accept: application/vnd.github+json" \
@@ -76,4 +79,4 @@ jobs:
           -H "Content-Type: application/octet-stream" \
           --fail \
           --data-binary "@data.sqlite" \
-          https://uploads.github.com/repos/auxesis/nswses_training_scraper/releases/108712870/assets?name=data-${GITHUB_RUN_ID}.sqlite
+          https://uploads.github.com/repos/auxesis/nswses_training_scraper/releases/108712870/assets?name=${ASSET_NAME}
