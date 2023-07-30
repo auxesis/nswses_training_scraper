@@ -5,6 +5,10 @@ gem 'mechanize'
 gem 'addressable'
 gem 'reverse_markdown'
 gem 'activesupport'
+gem 'octokit', '~> 5.0'
+gem 'faraday-retry'
+gem 'faraday-follow_redirects'
+gem 'terminal-table'
 
 group :development do
   gem 'pry'
