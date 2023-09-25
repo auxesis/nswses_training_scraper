@@ -52,7 +52,8 @@ def all_course_urls
   categories.each do |category|
     category_url = "#{base_url}/#{category}/"
     response = agent.get(category_url)
-    course_urls = response.search("div.ax-course-list div.ax-course-list-record a.ax-course-detail-link").map { |a| base_url + a.attribute("href").value }
+    links = response.search("div.ax-course-list div.ax-course-list-record a.ax-course-detail-link").map { |a| a.attribute("href").value }
+    course_urls = links.map { |a| URI.parse(a).host ? a : base_url + a } # sometimes links are relative, sometimes they're absolute
     @urls += course_urls
     puts "[INFO] Scraped #{course_urls.size} courses in #{category} category"
   end
