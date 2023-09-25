@@ -59,6 +59,7 @@ def all_course_urls
   end
 
   @urls.uniq!
+  @urls.reject! { |url| url =~ /elearning-details/ }
   @urls
 end
 
