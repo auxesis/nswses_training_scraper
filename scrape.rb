@@ -156,6 +156,12 @@ def scrape_workshop_dates(zones)
     response = agent.get(zone_courses_url)
     puts "[INFO] Scraping precise workshop dates for: #{zone[:name]}"
 
+    # no public courses in this zone
+    if response.search("h3").map(&:text).any? { |e| e =~ /currently no openings available/i }
+      puts "[INFO] No courses open in zone: #{zone[:name]}"
+      next
+    end
+
     container = response.search("div.ax-course-instance-list.ax-table").first # first should be All <zone> Courses
     container.search("tr").each_with_index.map do |row, i|
       next if i == 0 # skip table header, no tbody :-(
